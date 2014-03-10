@@ -40,9 +40,10 @@ curl -d "token=<GCM_DEVICE_TOKEN>&payload={\"title\": \"This is the title\", \"s
 ```
 
 
-To Do
+TODO
 -----------
 
+- Multicast sending (already in GCM package, just need it on the listener)
 - Output logging to a log file specified on the command-line
 - Perhaps make runnable on a UNIX socket
 
