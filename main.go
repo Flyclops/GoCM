@@ -14,7 +14,7 @@ import (
 )
 
 type procSettings struct {
-    IpAddress string
+    Host      string
     Port      string
     GCMAPIKey string
     Logto     string
@@ -94,7 +94,7 @@ func main() {
     runtime.GOMAXPROCS(i)
 
     // Read in flag args
-    flag.StringVar(&settings.IpAddress, "ipaddress", "0.0.0.0", "IP address to listen on (default: 0.0.0.0)")
+    flag.StringVar(&settings.Host, "host", "0.0.0.0", "IP address to listen on (default: 0.0.0.0)")
     flag.StringVar(&settings.Port, "port", "5601", "TCP port to listen on (default: 5601)")
     flag.StringVar(&settings.GCMAPIKey, "apikey", "", "GCM API key (required)")
     flag.StringVar(&settings.Logto, "logto", "", "Path to log file (default: stdout)")
@@ -118,7 +118,7 @@ func main() {
     }
 
     // Start listening
-    listenAddress := fmt.Sprintf("%s:%s", settings.IpAddress, settings.Port)
+    listenAddress := fmt.Sprintf("%s:%s", settings.Host, settings.Port)
     log.Println("Listening on " + listenAddress)
     http.HandleFunc("/gcm/send", Send)
     log.Fatal(http.ListenAndServe(listenAddress, nil))
