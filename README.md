@@ -44,6 +44,5 @@ TODO
 -----------
 
 - Multicast sending (already in GCM package, just need it on the listener)
-- Output logging to a log file specified on the command-line
 - Perhaps make runnable on a UNIX socket
 

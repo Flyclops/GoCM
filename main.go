@@ -8,6 +8,7 @@ import (
     "io"
     "log"
     "net/http"
+    "os"
     "runtime"
     "strconv"
 )
@@ -16,6 +17,7 @@ type procSettings struct {
     IpAddress string
     Port      string
     GCMAPIKey string
+    Logto     string
 }
 
 //=====================
@@ -95,7 +97,20 @@ func main() {
     flag.StringVar(&settings.IpAddress, "ipaddress", "0.0.0.0", "IP address to listen on (default: 0.0.0.0)")
     flag.StringVar(&settings.Port, "port", "5601", "TCP port to listen on (default: 5601)")
     flag.StringVar(&settings.GCMAPIKey, "apikey", "", "GCM API key (required)")
+    flag.StringVar(&settings.Logto, "logto", "", "Path to log file (default: stdout)")
     flag.Parse()
+
+    // Set up logging
+    if settings.Logto != "" {
+        fmt.Println("Log path: ", settings.Logto)
+        f, err := os.OpenFile(settings.Logto, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+        if err != nil {
+            fmt.Println("Log file won't open", err)
+        } else {
+            log.SetOutput(f)
+            defer f.Close()
+        }
+    }
 
     // Make sure there's an API key
     if settings.GCMAPIKey == "" {
