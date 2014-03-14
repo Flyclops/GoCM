@@ -92,15 +92,16 @@ func TestSendMessageToGCM(t *testing.T) {
     fOrig := runReport.Failures
 
     ok, err = sendMessageToGCM("asdf", "{\"key\": \"value\"}")
-    time.Sleep(5 * time.Second)
+    time.Sleep(1 * time.Second)
     if ok {
         log.Fatal("ok should be false")
     }
     if runReport.Attempts != aOrig+1 {
         log.Fatal("Attempts not incremented by 1")
     }
-    if runReport.Failures != fOrig+1 {
-        log.Fatal("Failures not incremented by 1")
+    if runReport.Failures != fOrig+2 {
+        // Plus 2 because of the default retry
+        log.Fatalf("Failures not incremented by 2 (orig: %d, new: %d)", fOrig, runReport.Failures)
     }
     if !strings.HasPrefix(err.Error(), "401 error") {
         log.Fatalf("Unexpected error string: %s", err.Error())
