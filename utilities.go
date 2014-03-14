@@ -36,16 +36,16 @@ func sendMessageToGCM(token, jsonStr string) (bool, error) {
     }
 
     // All is well, make & send the message
+    go appendAttempts()
+
     msg := gcm.NewMessage(payload, token)
     sender := &gcm.Sender{ApiKey: settings.GCMAPIKey}
-    go appendAttempts()
     result, err := sender.Send(msg, 2)
     if err != nil {
         log.Println("Failed to send message:")
         log.Println(err.Error())
 
         go appendFailures()
-
         return false, err
     }
     if result != nil {
