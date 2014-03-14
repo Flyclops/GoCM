@@ -6,6 +6,7 @@ import (
     "log"
     "strings"
     "testing"
+    "time"
 )
 
 func TestAppendAttempts(t *testing.T) {
@@ -91,6 +92,7 @@ func TestSendMessageToGCM(t *testing.T) {
     fOrig := runReport.Failures
 
     ok, err = sendMessageToGCM("asdf", "{\"key\": \"value\"}")
+    time.Sleep(5 * time.Second)
     if ok {
         log.Fatal("ok should be false")
     }
