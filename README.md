@@ -3,6 +3,8 @@ GoCM
 
 Super-simple asynchronous GCM notification send service written in Go
 
+[![Build Status](https://travis-ci.org/Flyclops/GoCM.png?branch=master)](https://travis-ci.org/Flyclops/GoCM)
+
 
 Motivation
 -----------
@@ -25,6 +27,12 @@ The POST request should include two key-value pairs, ```token``` (the GCM device
 
 The server returns immediately, while pushing the main bulk of the work on to a new goroutine.
 
+Functions: 
+
+- Send GCM messages (retries any message twice (TODO, make configurable?))
+- Keep a run report for the process
+- Report [canonical IDs from GCM](http://developer.android.com/google/gcm/adv.html#canonical)
+
 Example
 --------
 
@@ -38,6 +46,22 @@ Send a message via ```curl```:
 ```shell
 curl -d "token=<GCM_DEVICE_TOKEN>&payload={\"title\": \"This is the title\", \"subtitle\": \"This is the subtitle\", \"tickerText\": \"This is the ticker text\", \"datestamp\": \"2014-03-07T18:01:04.702100\"}" localhost:5601/gcm/send
 ```
+
+Get back a run report of attempts, failures, and required changes:
+```shell
+curl localhost:5601/gcm/report/
+```
+Result like: ```{"attempts":0,"failures":0,"canonicals":0}```
+
+Get back a list of push tokens that require updating (call if ```canonicals``` in above results > 0:
+```shell
+curl localhost:5601/gcm/report/canonical
+```
+Results like: ```{"canonical_replacements":null}```
+
+Or: ```{"canonical_replacements": [{"original": "<token>", "canonical": "<new_token>"]}```
+
+_Read more on Canonical IDs in GCM via the [offical documentation](http://developer.android.com/google/gcm/adv.html#canonical)_
 
 
 TODO
