@@ -30,12 +30,12 @@ type report struct {
 
 var settings procSettings
 
-// reporting
+// Reporting, with matching sync mutexes
 var runReport report
-var canonicalReplacements []canonicalReplacement
+var runReportMutex sync.Mutex
 
-var runReportWG sync.WaitGroup
-var canonicalReplacementsWG sync.WaitGroup
+var canonicalReplacements []canonicalReplacement
+var canonicalReplacementsMutex sync.Mutex
 
 //=====================
 //
