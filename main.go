@@ -1,16 +1,12 @@
 package main
 
 import (
-    "encoding/json"
     "flag"
     "fmt"
-    "github.com/alexjlockwood/gcm"
-    "io"
     "log"
     "net/http"
     "os"
     "runtime"
-    "strconv"
 )
 
 type procSettings struct {
@@ -20,72 +16,28 @@ type procSettings struct {
     Logto     string
 }
 
-//=====================
-//
-// Utility functions
-//
-//=====================
-
-func sendMessageToGCM(token, jsonStr string) {
-    if token == "" {
-        log.Println("Token was empty, exiting")
-        return
-    }
-
-    if jsonStr == "" {
-        log.Println("Payload was empty, exiting")
-        return
-    }
-
-    // Unpack the JSON payload
-    var payload map[string]interface{}
-    err := json.Unmarshal([]byte(jsonStr), &payload)
-    if err != nil {
-        log.Println("Can't unmarshal the json: " + err.Error())
-        log.Println("Original: " + jsonStr)
-        return
-    }
-
-    // All is well, make & send the message
-    msg := gcm.NewMessage(payload, token)
-    sender := &gcm.Sender{ApiKey: settings.GCMAPIKey}
-    result, err := sender.Send(msg, 2)
-    if err != nil {
-        log.Println("Failed to send message:")
-        log.Println(err.Error())
-    }
-    if result != nil {
-        log.Printf("Message sent: %s\n", payload["title"])
-    }
+type canonicalReplacement struct {
+    Original  string `json:"original"`
+    Canonical string `json:"canonical"`
 }
 
-//=====================
-//
-// Handlers
-//
-//=====================
-
-func Send(w http.ResponseWriter, r *http.Request) {
-    token := r.PostFormValue("token")
-    jsonStr := r.PostFormValue("payload")
-
-    // Push the long-running work to a new goroutine
-    go sendMessageToGCM(token, jsonStr)
-
-    // Return immediately
-    output := "ok\n"
-    w.Header().Set("Content-Type", "text/html")
-    w.Header().Set("Content-Length", strconv.Itoa(len(output)))
-    io.WriteString(w, output)
+type report struct {
+    Attempts   int `json:"attempts"`
+    Failures   int `json:"failures"`
+    Canonicals int `json:"canonicals"`
 }
+
+var settings procSettings
+
+// reporting
+var runReport report
+var canonicalReplacements []canonicalReplacement
 
 //=====================
 //
 // Main method
 //
 //=====================
-
-var settings procSettings
 
 func main() {
     // Set max parallelism
@@ -120,6 +72,12 @@ func main() {
     // Start listening
     listenAddress := fmt.Sprintf("%s:%s", settings.Host, settings.Port)
     log.Println("Listening on " + listenAddress)
-    http.HandleFunc("/gcm/send", Send)
+
+    // Set up handlers
+    http.HandleFunc("/gcm/send", send)
+    http.HandleFunc("/gcm/report", getReport)
+    http.HandleFunc("/gcm/report/canonical", getCanonicalReport)
+
+    // Start the listener
     log.Fatal(http.ListenAndServe(listenAddress, nil))
 }
