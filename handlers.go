@@ -24,7 +24,10 @@ func send(w http.ResponseWriter, r *http.Request) {
 
 // Return a run report for this process
 func getReport(w http.ResponseWriter, r *http.Request) {
+    runReportWG.Wait()
+    runReportWG.Add(1)
     a, _ := json.Marshal(runReport)
+    runReportWG.Done()
     b := string(a)
     io.WriteString(w, b)
 }
@@ -35,4 +38,19 @@ func getCanonicalReport(w http.ResponseWriter, r *http.Request) {
     a, _ := json.Marshal(ids)
     b := string(a)
     io.WriteString(w, b)
+
+    // Clear out canonicals
+    go func() {
+        canonicalReplacementsWG.Wait()
+        canonicalReplacementsWG.Add(1)
+        canonicalReplacements = nil
+        canonicalReplacementsWG.Done()
+    }()
+
+    go func() {
+        runReportWG.Wait()
+        runReportWG.Add(1)
+        runReport.Canonicals = 0
+        runReportWG.Done()
+    }()
 }

@@ -66,13 +66,22 @@ func handleCanonicalsInResult(original string, results []gcm.Result) {
 }
 
 func appendAttempts() {
+    runReportWG.Wait()
+    runReportWG.Add(1)
     runReport.Attempts++
+    runReportWG.Done()
 }
 
 func appendFailures() {
+    runReportWG.Wait()
+    runReportWG.Add(1)
     runReport.Failures++
+    runReportWG.Done()
 }
 
 func appendCanonicals() {
+    runReportWG.Wait()
+    runReportWG.Add(1)
     runReport.Canonicals++
+    runReportWG.Done()
 }

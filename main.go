@@ -7,6 +7,7 @@ import (
     "net/http"
     "os"
     "runtime"
+    "sync"
 )
 
 type procSettings struct {
@@ -32,6 +33,9 @@ var settings procSettings
 // reporting
 var runReport report
 var canonicalReplacements []canonicalReplacement
+
+var runReportWG sync.WaitGroup
+var canonicalReplacementsWG sync.WaitGroup
 
 //=====================
 //
