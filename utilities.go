@@ -7,12 +7,6 @@ import (
     "log"
 )
 
-//=====================
-//
-// Utility functions
-//
-//=====================
-
 func sendMessageToGCM(token, jsonStr string) (bool, error) {
     if token == "" {
         errText := "Token was empty, exiting"
@@ -48,13 +42,17 @@ func sendMessageToGCM(token, jsonStr string) (bool, error) {
         go appendFailures()
         return false, err
     }
+    canonicalsBack := 0
     if result != nil {
+        canonicalsBack = result.CanonicalIDs
         //log.Printf("Message sent: %s\n", payload["title"])
         if result.CanonicalIDs > 0 {
             go appendCanonicals()
             handleCanonicalsInResult(token, result.Results)
         }
     }
+
+    log.Printf("Message sent, canonicals: %d", canonicalsBack)
 
     return true, nil
 }
