@@ -41,7 +41,7 @@ func getCanonicalReport(w http.ResponseWriter, r *http.Request) {
     // Clear out canonicals
     go func() {
         canonicalReplacementsMutex.Lock()
-        defer canonicalReplacementsMutex.Lock()
+        defer canonicalReplacementsMutex.Unlock()
         canonicalReplacements = nil
     }()
 
