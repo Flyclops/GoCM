@@ -38,23 +38,46 @@ Example
 
 Start the server
 
-```shell
+```bash
 ./GoCM --apikey <GCM_API_KEY>
 ```
 
-Send a message via ```curl```:
-```shell
+Send a message...
+
+...via ```curl```:
+```bash
 curl -d "token=<GCM_DEVICE_TOKEN>&payload={\"title\": \"This is the title\", \"subtitle\": \"This is the subtitle\", \"tickerText\": \"This is the ticker text\", \"datestamp\": \"2014-03-07T18:01:04.702100\"}" localhost:5601/gcm/send
 ```
 
+...via `python`
+```python
+import requests
+
+GCM_SEND_ENDPOINT = 'http://localhost:5601/gcm/send'
+
+token = "<GCM_DEVICE_TOKEN>"
+message = {
+    'title': 'This is the title',
+    'subtitle': 'This is the subtitle',
+    'tickerText': 'This is the ticker text',
+    'datestamp': '2014-03-07T18:01:04.702100'
+}
+data = {
+    'token': token,
+    'payload': json.dumps(message)
+}
+
+response = requests.post(GCM_SEND_ENDPOINT, data=data)
+```
+
 Get back a run report of attempts, failures, and required changes:
-```shell
+```bash
 curl localhost:5601/gcm/report/
 ```
 Result like: ```{"attempts":0,"failures":0,"canonicals":0}```
 
 Get back a list of push tokens that require updating (call if ```canonicals``` in above results > 0:
-```shell
+```bash
 curl localhost:5601/gcm/report/canonical
 ```
 Results like: ```{"canonical_replacements":null}```
