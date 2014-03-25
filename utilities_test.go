@@ -1,109 +1,110 @@
 package main
 
 import (
-    "fmt"
-    "github.com/alexjlockwood/gcm"
-    "log"
-    "strings"
-    "testing"
-    "time"
+	"fmt"
+	"log"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/alexjlockwood/gcm"
 )
 
 func TestAppendAttempts(t *testing.T) {
-    a := runReport.Attempts
-    appendAttempts()
-    if runReport.Attempts != a+1 {
-        log.Fatalf("Append attempts should be %d, is %d", a+1, runReport.Attempts)
-    }
+	a := runReport.Attempts
+	appendAttempts()
+	if runReport.Attempts != a+1 {
+		log.Fatalf("Append attempts should be %d, is %d", a+1, runReport.Attempts)
+	}
 }
 
 func TestAppendFailures(t *testing.T) {
-    a := runReport.Failures
-    appendFailures()
-    if runReport.Failures != a+1 {
-        log.Fatalf("Append failures should be %d, is %d", a+1, runReport.Failures)
-    }
+	a := runReport.Failures
+	appendFailures()
+	if runReport.Failures != a+1 {
+		log.Fatalf("Append failures should be %d, is %d", a+1, runReport.Failures)
+	}
 }
 
 func TestAppendCanonicals(t *testing.T) {
-    a := runReport.Canonicals
-    appendCanonicals()
-    if runReport.Canonicals != a+1 {
-        log.Fatalf("Append canonicals should be %d, is %d", a+1, runReport.Canonicals)
-    }
+	a := runReport.Canonicals
+	appendCanonicals()
+	if runReport.Canonicals != a+1 {
+		log.Fatalf("Append canonicals should be %d, is %d", a+1, runReport.Canonicals)
+	}
 }
 
 func TestHandleCanonicalsInResult(t *testing.T) {
-    canonicalReplacements = nil
-    var results []gcm.Result
+	canonicalReplacements = nil
+	var results []gcm.Result
 
-    for i := 0; i < 4; i++ {
-        g := gcm.Result{"asdf", fmt.Sprintf("%d-%d-%d-%d", i, i, i, i), ""}
-        results = append(results, g)
-        //gcm.Response{1, 1, 0, 1, gs}
-    }
+	for i := 0; i < 4; i++ {
+		g := gcm.Result{"asdf", fmt.Sprintf("%d-%d-%d-%d", i, i, i, i), ""}
+		results = append(results, g)
+		//gcm.Response{1, 1, 0, 1, gs}
+	}
 
-    // "Handle" the results
-    handleCanonicalsInResult("asdf", results)
+	// "Handle" the results
+	handleCanonicalsInResult("asdf", results)
 
-    // Now parse through them
-    for i, r := range canonicalReplacements {
-        if r.Original != "asdf" {
-            log.Fatal("Original is not \"asdf\" as it should be")
+	// Now parse through them
+	for i, r := range canonicalReplacements {
+		if r.Original != "asdf" {
+			log.Fatal("Original is not \"asdf\" as it should be")
 
-            replacement := fmt.Sprintf("%d-%d-%d-%d", i, i, i, i)
-            if r.Canonical != replacement {
-                log.Fatalf("Canonical is wrong. Expecting: %s, got: %s", replacement, r.Canonical)
-            }
-        }
-    }
+			replacement := fmt.Sprintf("%d-%d-%d-%d", i, i, i, i)
+			if r.Canonical != replacement {
+				log.Fatalf("Canonical is wrong. Expecting: %s, got: %s", replacement, r.Canonical)
+			}
+		}
+	}
 }
 
 func TestSendMessageToGCM(t *testing.T) {
-    // Test empty token
-    ok, err := sendMessageToGCM("", "")
-    if ok {
-        log.Fatal("ok should be false")
-    }
-    if err.Error() != "Token was empty, exiting" {
-        log.Fatalf("Unexpected error string: %s", err.Error())
-    }
+	// Test empty token
+	ok, err := sendMessageToGCM("", "")
+	if ok {
+		log.Fatal("ok should be false")
+	}
+	if err.Error() != "Token was empty, exiting" {
+		log.Fatalf("Unexpected error string: %s", err.Error())
+	}
 
-    // Test empty payload
-    ok, err = sendMessageToGCM("asdf", "")
-    if ok {
-        log.Fatal("ok should be false")
-    }
-    if err.Error() != "Payload was empty, exiting" {
-        log.Fatalf("Unexpected error string: %s", err.Error())
-    }
+	// Test empty payload
+	ok, err = sendMessageToGCM("asdf", "")
+	if ok {
+		log.Fatal("ok should be false")
+	}
+	if err.Error() != "Payload was empty, exiting" {
+		log.Fatalf("Unexpected error string: %s", err.Error())
+	}
 
-    // Test bad json
-    ok, err = sendMessageToGCM("asdf", "asdf")
-    if ok {
-        log.Fatal("ok should be false")
-    }
-    if !strings.HasPrefix(err.Error(), "invalid character") {
-        log.Fatalf("Unexpected error string: %s", err.Error())
-    }
+	// Test bad json
+	ok, err = sendMessageToGCM("asdf", "asdf")
+	if ok {
+		log.Fatal("ok should be false")
+	}
+	if !strings.HasPrefix(err.Error(), "invalid character") {
+		log.Fatalf("Unexpected error string: %s", err.Error())
+	}
 
-    // Test bad send
-    aOrig := runReport.Attempts
-    fOrig := runReport.Failures
+	// Test bad send
+	aOrig := runReport.Attempts
+	fOrig := runReport.Failures
 
-    ok, err = sendMessageToGCM("asdf", "{\"key\": \"value\"}")
-    time.Sleep(1 * time.Second)
-    if ok {
-        log.Fatal("ok should be false")
-    }
-    if runReport.Attempts != aOrig+1 {
-        log.Fatal("Attempts not incremented by 1")
-    }
-    if runReport.Failures != fOrig+2 {
-        // Plus 2 because of the default retry
-        log.Fatalf("Failures not incremented by 2 (orig: %d, new: %d)", fOrig, runReport.Failures)
-    }
-    if !strings.HasPrefix(err.Error(), "401 error") {
-        log.Fatalf("Unexpected error string: %s", err.Error())
-    }
+	ok, err = sendMessageToGCM("asdf", "{\"key\": \"value\"}")
+	time.Sleep(1 * time.Second)
+	if ok {
+		log.Fatal("ok should be false")
+	}
+	if runReport.Attempts != aOrig+1 {
+		log.Fatal("Attempts not incremented by 1")
+	}
+	if runReport.Failures != fOrig+2 {
+		// Plus 2 because of the default retry
+		log.Fatalf("Failures not incremented by 2 (orig: %d, new: %d)", fOrig, runReport.Failures)
+	}
+	if !strings.HasPrefix(err.Error(), "401 error") {
+		log.Fatalf("Unexpected error string: %s", err.Error())
+	}
 }
