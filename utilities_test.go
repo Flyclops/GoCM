@@ -34,6 +34,22 @@ func TestAppendCanonicals(t *testing.T) {
 	}
 }
 
+func TestIncrementPending(t *testing.T) {
+	a := runReport.Pending
+	incrementPending()
+	if runReport.Pending != a+1 {
+		log.Fatalf("Increment pending should be %d, is %d", a+1, runReport.Pending)
+	}
+}
+
+func TestDecrementPending(t *testing.T) {
+	a := runReport.Pending
+	decrementPending()
+	if runReport.Pending != a-1 {
+		log.Fatalf("Decrement pending should be %d, is %d", a-1, runReport.Pending)
+	}
+}
+
 func TestHandleCanonicalsInResult(t *testing.T) {
 	canonicalReplacements = nil
 	var results []gcm.Result

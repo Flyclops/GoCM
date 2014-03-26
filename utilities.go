@@ -9,6 +9,11 @@ import (
 )
 
 func sendMessageToGCM(token, jsonStr string) (bool, error) {
+	// At any exit, decrement pending
+	defer func() {
+		go decrementPending()
+	}()
+
 	if token == "" {
 		errText := "Token was empty, exiting"
 		log.Println(errText)
@@ -80,4 +85,16 @@ func appendCanonicals() {
 	runReportMutex.Lock()
 	defer runReportMutex.Unlock()
 	runReport.Canonicals++
+}
+
+func incrementPending() {
+	runReportMutex.Lock()
+	defer runReportMutex.Unlock()
+	runReport.Pending++
+}
+
+func decrementPending() {
+	runReportMutex.Lock()
+	defer runReportMutex.Unlock()
+	runReport.Pending--
 }

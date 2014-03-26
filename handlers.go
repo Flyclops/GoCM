@@ -12,8 +12,11 @@ func send(w http.ResponseWriter, r *http.Request) {
 	token := r.PostFormValue("token")
 	jsonStr := r.PostFormValue("payload")
 
-	// Push the long-running work to a new goroutine
-	go sendMessageToGCM(token, jsonStr)
+	// Serial pending incrementation
+	go func() {
+		incrementPending()
+		sendMessageToGCM(token, jsonStr)
+	}()
 
 	// Return immediately
 	output := "ok\n"

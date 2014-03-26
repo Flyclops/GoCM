@@ -45,6 +45,7 @@ func TestGetReport(t *testing.T) {
 	runReport.Attempts = 10
 	runReport.Canonicals = 4
 	runReport.Failures = 21
+	runReport.Pending = 44
 
 	resp, err := http.Get(server.URL)
 	if err != nil {
@@ -52,7 +53,7 @@ func TestGetReport(t *testing.T) {
 		log.Fatalf("%v", err)
 	}
 
-	expected := "{\"attempts\":10,\"failures\":21,\"canonicals\":4}"
+	expected := "{\"attempts\":10,\"failures\":21,\"pending\":44,\"canonicals\":4}"
 	contents, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
