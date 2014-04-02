@@ -91,6 +91,5 @@ _Read more on Canonical IDs in GCM via the [offical documentation](http://develo
 TODO
 -----------
 
-- Multicast sending (already in GCM package, just need it on the listener)
 - Perhaps make runnable on a UNIX socket
 
