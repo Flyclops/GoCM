@@ -74,9 +74,10 @@ Get back a run report of attempts, failures, and required changes:
 ```bash
 curl localhost:5601/gcm/report/
 ```
-Result like: ```{"attempts":0,"failures":0,"canonicals":0}```
+Result like: ```{"attempts":0,"failures":0,"pending":0,"canonicals":0}```
+("attempts," "failures," and "canonicals" is a running total for the running process, while "pending" is the number of messages waiting to finish transmitting successfully. Great for watching via Graphite graphs or the like.)
 
-Get back a list of push tokens that require updating (call if ```canonicals``` in above results > 0:
+Get back a list of push tokens that require updating (call if ```canonicals``` in above results > 0):
 ```bash
 curl localhost:5601/gcm/report/canonical
 ```
