@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"testing"
 	"time"
@@ -12,25 +11,25 @@ import (
 
 func TestAppendAttempts(t *testing.T) {
 	a := runReport.Attempts
-	appendAttempts()
-	if runReport.Attempts != a+1 {
-		log.Fatalf("Append attempts should be %d, is %d", a+1, runReport.Attempts)
+	appendAttempts(2)
+	if runReport.Attempts != a+2 {
+		t.Fatalf("Append attempts should be %d, is %d", a+2, runReport.Attempts)
 	}
 }
 
 func TestAppendFailures(t *testing.T) {
 	a := runReport.Failures
-	appendFailures()
-	if runReport.Failures != a+1 {
-		log.Fatalf("Append failures should be %d, is %d", a+1, runReport.Failures)
+	appendFailures(3)
+	if runReport.Failures != a+3 {
+		t.Fatalf("Append failures should be %d, is %d", a+3, runReport.Failures)
 	}
 }
 
 func TestAppendCanonicals(t *testing.T) {
 	a := runReport.Canonicals
-	appendCanonicals()
+	appendCanonicals(1)
 	if runReport.Canonicals != a+1 {
-		log.Fatalf("Append canonicals should be %d, is %d", a+1, runReport.Canonicals)
+		t.Fatalf("Append canonicals should be %d, is %d", a+1, runReport.Canonicals)
 	}
 }
 
@@ -38,7 +37,7 @@ func TestIncrementPending(t *testing.T) {
 	a := runReport.Pending
 	incrementPending()
 	if runReport.Pending != a+1 {
-		log.Fatalf("Increment pending should be %d, is %d", a+1, runReport.Pending)
+		t.Fatalf("Increment pending should be %d, is %d", a+1, runReport.Pending)
 	}
 }
 
@@ -46,7 +45,7 @@ func TestDecrementPending(t *testing.T) {
 	a := runReport.Pending
 	decrementPending()
 	if runReport.Pending != a-1 {
-		log.Fatalf("Decrement pending should be %d, is %d", a-1, runReport.Pending)
+		t.Fatalf("Decrement pending should be %d, is %d", a-1, runReport.Pending)
 	}
 }
 
@@ -66,11 +65,11 @@ func TestHandleCanonicalsInResult(t *testing.T) {
 	// Now parse through them
 	for i, r := range canonicalReplacements {
 		if r.Original != "asdf" {
-			log.Fatal("Original is not \"asdf\" as it should be")
+			t.Fatal("Original is not \"asdf\" as it should be")
 
 			replacement := fmt.Sprintf("%d-%d-%d-%d", i, i, i, i)
 			if r.Canonical != replacement {
-				log.Fatalf("Canonical is wrong. Expecting: %s, got: %s", replacement, r.Canonical)
+				t.Fatalf("Canonical is wrong. Expecting: %s, got: %s", replacement, r.Canonical)
 			}
 		}
 	}
@@ -78,49 +77,49 @@ func TestHandleCanonicalsInResult(t *testing.T) {
 
 func TestSendMessageToGCM(t *testing.T) {
 	// Test empty token
-	ok, err := sendMessageToGCM("", "")
+	ok, err := sendMessageToGCM([]string{}, "")
 	if ok {
-		log.Fatal("ok should be false")
+		t.Fatal("ok should be false")
 	}
-	if err.Error() != "Token was empty, exiting" {
-		log.Fatalf("Unexpected error string: %s", err.Error())
+	if err.Error() != "No tokens were supplied, exiting" {
+		t.Fatalf("Expecting 'No tokens were supplied, exiting', got: %s", err.Error())
 	}
 
 	// Test empty payload
-	ok, err = sendMessageToGCM("asdf", "")
+	ok, err = sendMessageToGCM([]string{"asdf"}, "")
 	if ok {
-		log.Fatal("ok should be false")
+		t.Fatal("ok should be false")
 	}
 	if err.Error() != "Payload was empty, exiting" {
-		log.Fatalf("Unexpected error string: %s", err.Error())
+		t.Fatalf("Expecting 'Payload was empty, exiting', got: %s", err.Error())
 	}
 
 	// Test bad json
-	ok, err = sendMessageToGCM("asdf", "asdf")
+	ok, err = sendMessageToGCM([]string{"asdf"}, "asdf")
 	if ok {
-		log.Fatal("ok should be false")
+		t.Fatal("ok should be false")
 	}
 	if !strings.HasPrefix(err.Error(), "invalid character") {
-		log.Fatalf("Unexpected error string: %s", err.Error())
+		t.Fatalf("Unexpected error string: %s", err.Error())
 	}
 
 	// Test bad send
 	aOrig := runReport.Attempts
 	fOrig := runReport.Failures
 
-	ok, err = sendMessageToGCM("asdf", "{\"key\": \"value\"}")
+	ok, err = sendMessageToGCM([]string{"asdf"}, "{\"key\": \"value\"}")
 	time.Sleep(1 * time.Second)
 	if ok {
-		log.Fatal("ok should be false")
+		t.Fatal("ok should be false")
 	}
 	if runReport.Attempts != aOrig+1 {
-		log.Fatal("Attempts not incremented by 1")
+		t.Fatal("Attempts not incremented by 1")
 	}
 	if runReport.Failures != fOrig+2 {
 		// Plus 2 because of the default retry
-		log.Fatalf("Failures not incremented by 2 (orig: %d, new: %d)", fOrig, runReport.Failures)
+		t.Fatalf("Failures not incremented by 2 (orig: %d, new: %d)", fOrig, runReport.Failures)
 	}
 	if !strings.HasPrefix(err.Error(), "401 error") {
-		log.Fatalf("Unexpected error string: %s", err.Error())
+		t.Fatalf("Unexpected error string: %s", err.Error())
 	}
 }

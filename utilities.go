@@ -8,7 +8,7 @@ import (
 	"github.com/alexjlockwood/gcm"
 )
 
-func sendMessageToGCM(tokens []string, jsonStr string) (bool, error) {
+func sendMessageToGCM(tokens []string, payloadAsString string) (bool, error) {
 	// At any exit, decrement pending
 	defer func() {
 		go decrementPending()
@@ -20,7 +20,7 @@ func sendMessageToGCM(tokens []string, jsonStr string) (bool, error) {
 		return false, errors.New(errText)
 	}
 
-	if jsonStr == "" {
+	if payloadAsString == "" {
 		errText := "Payload was empty, exiting"
 		log.Println(errText)
 		return false, errors.New(errText)
@@ -28,10 +28,10 @@ func sendMessageToGCM(tokens []string, jsonStr string) (bool, error) {
 
 	// Unpack the JSON payload
 	var payload map[string]interface{}
-	err := json.Unmarshal([]byte(jsonStr), &payload)
+	err := json.Unmarshal([]byte(payloadAsString), &payload)
 	if err != nil {
 		log.Println("Can't unmarshal the json: " + err.Error())
-		log.Println("Original: " + jsonStr)
+		log.Println("Original: " + payloadAsString)
 		return false, err
 	}
 

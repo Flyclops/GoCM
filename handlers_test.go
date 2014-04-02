@@ -20,21 +20,22 @@ func TestSend(t *testing.T) {
 	payload := "{\"title\": \"This is the title\", \"subtitle\": \"This is the subtitle\", \"tickerText\": \"This is the ticker text\", \"datestamp\": \"2014-03-07T18:01:04.702100\"}"
 
 	v := url.Values{}
-	v.Set("token", token)
+	v.Set("tokens", token)
 	v.Set("payload", payload)
+
 	resp, err := http.PostForm(server.URL, v)
 	if err != nil {
 		log.Println(resp)
-		log.Fatalf("%v", err)
+		t.Fatalf("%v", err)
 	}
 
 	contents, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 
 	if err != nil {
-		log.Fatalf("Error reading body: %v", err)
+		t.Fatalf("Error reading body: %v", err)
 	} else if contentsString := string(contents); contentsString != "ok\n" {
-		log.Fatalf("Body response not \"ok\": %s", contentsString)
+		t.Fatalf("Body response not \"ok\": %s", contentsString)
 	}
 }
 
@@ -50,16 +51,16 @@ func TestGetReport(t *testing.T) {
 	resp, err := http.Get(server.URL)
 	if err != nil {
 		log.Println(resp)
-		log.Fatalf("%v", err)
+		t.Fatalf("%v", err)
 	}
 
 	expected := "{\"attempts\":10,\"failures\":21,\"pending\":44,\"canonicals\":4}"
 	contents, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		log.Fatalf("Error reading body: %v", err)
+		t.Fatalf("Error reading body: %v", err)
 	} else if contentsString := string(contents); contentsString != expected {
-		log.Fatalf("Body response not \"ok\": %s", contentsString)
+		t.Fatalf("Body response not \"ok\": %s", contentsString)
 	}
 }
 
@@ -76,13 +77,13 @@ func TestGetCanonicalReport(t *testing.T) {
 	resp, err := http.Get(server.URL)
 	if err != nil {
 		log.Println(resp)
-		log.Fatalf("%v", err)
+		t.Fatalf("%v", err)
 	}
 
 	contents, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-		log.Fatalf("Error reading body: %v", err)
+		t.Fatalf("Error reading body: %v", err)
 	}
 
 	// Unmarshal
@@ -93,7 +94,7 @@ func TestGetCanonicalReport(t *testing.T) {
 
 	err = json.Unmarshal(contents, &respReplacements)
 	if err != nil {
-		log.Fatalf("Trouble unmarshaling JSON: %v", err)
+		t.Fatalf("Trouble unmarshaling JSON: %v", err)
 	}
 
 	for index, val := range respReplacements.Replacements {
@@ -118,7 +119,7 @@ func TestGetCanonicalReport(t *testing.T) {
 		}
 
 		if fatal {
-			log.Fatal(respReplacements)
+			t.Fatal(respReplacements)
 		}
 	}
 }
