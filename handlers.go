@@ -47,10 +47,4 @@ func getCanonicalReport(w http.ResponseWriter, r *http.Request) {
 		defer canonicalReplacementsMutex.Unlock()
 		canonicalReplacements = nil
 	}()
-
-	go func() {
-		runReportMutex.Lock()
-		defer runReportMutex.Unlock()
-		runReport.Canonicals = 0
-	}()
 }
