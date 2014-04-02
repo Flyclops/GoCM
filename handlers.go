@@ -9,13 +9,13 @@ import (
 
 // Send a message to GCM
 func send(w http.ResponseWriter, r *http.Request) {
-	token := r.PostFormValue("token")
+	r.ParseForm()
+	tokens := r.PostForm["tokens"]
 	jsonStr := r.PostFormValue("payload")
 
-	// Serial pending incrementation
 	go func() {
 		incrementPending()
-		sendMessageToGCM(token, jsonStr)
+		sendMessageToGCM(tokens, jsonStr)
 	}()
 
 	// Return immediately

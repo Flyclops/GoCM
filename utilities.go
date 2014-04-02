@@ -8,14 +8,14 @@ import (
 	"github.com/alexjlockwood/gcm"
 )
 
-func sendMessageToGCM(token, jsonStr string) (bool, error) {
+func sendMessageToGCM(tokens []string, jsonStr string) (bool, error) {
 	// At any exit, decrement pending
 	defer func() {
 		go decrementPending()
 	}()
 
-	if token == "" {
-		errText := "Token was empty, exiting"
+	if len(tokens) == 0 {
+		errText := "No tokens were supplied, exiting"
 		log.Println(errText)
 		return false, errors.New(errText)
 	}
@@ -36,29 +36,39 @@ func sendMessageToGCM(token, jsonStr string) (bool, error) {
 	}
 
 	// All is well, make & send the message
-	go appendAttempts()
+	go appendAttempts(len(tokens))
 
-	msg := gcm.NewMessage(payload, token)
+	msg := gcm.NewMessage(payload, tokens...)
 	sender := &gcm.Sender{ApiKey: settings.GCMAPIKey}
-	result, err := sender.Send(msg, 2)
+	response, err := sender.Send(msg, 2)
 	if err != nil {
 		log.Println("Failed to send message:")
 		log.Println(err.Error())
 
-		go appendFailures()
+		go appendFailures(1)
 		return false, err
 	}
-	canonicalsBack := 0
-	if result != nil {
-		canonicalsBack = result.CanonicalIDs
-		//log.Printf("Message sent: %s\n", payload["title"])
-		if result.CanonicalIDs > 0 {
-			go appendCanonicals()
-			handleCanonicalsInResult(token, result.Results)
+
+	numCan := 0
+	numErr := 0
+	if response != nil {
+		for i, result := range response.Results {
+			// Canonicals
+			if result.RegistrationID != "" {
+				numCan++
+				canonicalReplacements = append(canonicalReplacements, canonicalReplacement{tokens[i], result.RegistrationID})
+			}
+			if result.Error != "" {
+				numErr++
+				log.Printf("Error sending: %s", result.Error)
+			}
 		}
+
+		go appendCanonicals(numCan)
+		go appendFailures(numErr)
 	}
 
-	log.Printf("Message sent, canonicals: %d", canonicalsBack)
+	log.Printf("Message sent. Attempts: %d, Errors: %d, Successful: %d (Canonicals: %d)", len(tokens), numErr, len(tokens)-numErr, numCan)
 
 	return true, nil
 }
@@ -69,22 +79,22 @@ func handleCanonicalsInResult(original string, results []gcm.Result) {
 	}
 }
 
-func appendAttempts() {
+func appendAttempts(numToAppend int) {
 	runReportMutex.Lock()
 	defer runReportMutex.Unlock()
-	runReport.Attempts++
+	runReport.Attempts += numToAppend
 }
 
-func appendFailures() {
+func appendFailures(numToAppend int) {
 	runReportMutex.Lock()
 	defer runReportMutex.Unlock()
-	runReport.Failures++
+	runReport.Failures += numToAppend
 }
 
-func appendCanonicals() {
+func appendCanonicals(numToAppend int) {
 	runReportMutex.Lock()
 	defer runReportMutex.Unlock()
-	runReport.Canonicals++
+	runReport.Canonicals += numToAppend
 }
 
 func incrementPending() {

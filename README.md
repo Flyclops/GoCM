@@ -23,7 +23,7 @@ The service
 
 In order to not reinvent the wheel, we started with [Alex Lockwood's](https://github.com/alexjlockwood) open source GCM package for Go, called simply [gcm](https://github.com/alexjlockwood/gcm). Surrounding that, we instantiate a standard web server that takes an ```-apikey``` argument (and also configurable ```-ipaddress``` and ```-port``` arguments if the defaults are not desired) and listens for incoming POST requests. 
 
-The POST request should include two key-value pairs, ```token``` (the GCM device token) and ```payload``` (the JSON packet to send to GCM).
+The POST request should include two key-value pairs, ```tokens``` (an array of GCM device tokens) and ```payload``` (the JSON packet to send to GCM).
 
 The server returns immediately, while pushing the main bulk of the work on to a new goroutine.
 
@@ -46,7 +46,7 @@ Send a message...
 
 ...via ```curl```:
 ```bash
-curl -d "token=<GCM_DEVICE_TOKEN>&payload={\"title\": \"This is the title\", \"subtitle\": \"This is the subtitle\", \"tickerText\": \"This is the ticker text\", \"datestamp\": \"2014-03-07T18:01:04.702100\"}" localhost:5601/gcm/send
+curl -d "tokens=<GCM_DEVICE_TOKEN>&tokens=<GCM_DEVICE_TOKEN2>&payload={\"title\": \"This is the title\", \"subtitle\": \"This is the subtitle\", \"tickerText\": \"This is the ticker text\", \"datestamp\": \"2014-03-07T18:01:04.702100\"}" localhost:5601/gcm/send
 ```
 
 ...via `python`
@@ -63,7 +63,7 @@ message = {
     'datestamp': '2014-03-07T18:01:04.702100'
 }
 data = {
-    'token': token,
+    'token': [token],
     'payload': json.dumps(message)
 }
 
