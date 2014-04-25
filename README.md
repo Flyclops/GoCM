@@ -1,7 +1,7 @@
 GoCM
 ====
 
-Super-simple asynchronous GCM notification send service written in Go
+Super-simple asynchronous Google Cloud Messaging (GCM) notification send service written in Go
 
 [![Build Status](https://travis-ci.org/Flyclops/GoCM.png?branch=master)](https://travis-ci.org/Flyclops/GoCM)
 
