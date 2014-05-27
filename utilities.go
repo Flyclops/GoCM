@@ -64,6 +64,7 @@ func sendMessageToGCM(tokens []string, payloadAsString string) (bool, error) {
 
 				if result.Error == "NotRegistered" {
 					handleNotRegisteredError(tokens[i])
+					go appendNotRegistered(1)
 				}
 			}
 		}
