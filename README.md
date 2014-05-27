@@ -32,6 +32,7 @@ Functions:
 - Send GCM messages (retries any message twice (TODO, make configurable?))
 - Keep a run report for the process
 - Report [canonical IDs from GCM](http://developer.android.com/google/gcm/adv.html#canonical)
+- Report [NotRegistered tokens](http://developer.android.com/google/gcm/http.html#error_codes)
 
 Example
 --------
@@ -86,6 +87,13 @@ Results like: ```{"canonical_replacements":null}```
 Or: ```{"canonical_replacements": [{"original": "<token>", "canonical": "<new_token>"]}```
 
 _Read more on Canonical IDs in GCM via the [offical documentation](http://developer.android.com/google/gcm/adv.html#canonical)_
+
+Get back a list of push tokens that should be purged from your database (app was uninstalled, etc.)
+```bash
+curl localhost:5601/gcm/report/notregistered
+```
+Results like ```{"tokens": ["token1", "token2", ...]}```
+
 
 
 TODO
