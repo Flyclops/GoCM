@@ -107,6 +107,12 @@ func appendCanonicals(numToAppend int) {
 	runReport.Canonicals += numToAppend
 }
 
+func appendNotRegistered(numToAppend int) {
+	runReportMutex.Lock()
+	defer runReportMutex.Unlock()
+	runReport.NotRegistered += numToAppend
+}
+
 func incrementPending() {
 	runReportMutex.Lock()
 	defer runReportMutex.Unlock()

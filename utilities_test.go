@@ -33,6 +33,14 @@ func TestAppendCanonicals(t *testing.T) {
 	}
 }
 
+func TestAppendNotRegistered(t *testing.T) {
+	a := runReport.NotRegistered
+	appendNotRegistered(1)
+	if runReport.NotRegistered != a+1 {
+		t.Fatalf("Append notregistered should be %d, is %d", a+1, runReport.NotRegistered)
+	}
+}
+
 func TestIncrementPending(t *testing.T) {
 	a := runReport.Pending
 	incrementPending()

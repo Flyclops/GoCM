@@ -23,10 +23,11 @@ type canonicalReplacement struct {
 }
 
 type report struct {
-	Attempts   int `json:"attempts"`
-	Failures   int `json:"failures"`
-	Pending    int `json:"pending"`
-	Canonicals int `json:"canonicals"`
+	Attempts      int `json:"attempts"`
+	Failures      int `json:"failures"`
+	Pending       int `json:"pending"`
+	Canonicals    int `json:"canonicals"`
+	NotRegistered int `json:"notregistered"`
 }
 
 var settings procSettings
