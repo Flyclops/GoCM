@@ -38,6 +38,9 @@ var runReportMutex sync.Mutex
 var canonicalReplacements []canonicalReplacement
 var canonicalReplacementsMutex sync.Mutex
 
+var notRegisteredKeys []string
+var notRegisteredMutex sync.Mutex
+
 //=====================
 //
 // Main method
@@ -85,6 +88,7 @@ func main() {
 	http.HandleFunc("/gcm/send", send)
 	http.HandleFunc("/gcm/report", getReport)
 	http.HandleFunc("/gcm/report/canonical", getCanonicalReport)
+	http.HandleFunc("/gcm/report/notregistered", getNotRegisteredReport)
 
 	// Start the listener
 	log.Fatal(http.ListenAndServe(listenAddress, nil))

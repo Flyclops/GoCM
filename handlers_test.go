@@ -123,3 +123,51 @@ func TestGetCanonicalReport(t *testing.T) {
 		}
 	}
 }
+
+func TestGetNotRegisteredReport(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(getNotRegisteredReport))
+	defer server.Close()
+
+	for i := 0; i < 5; i++ {
+		original := fmt.Sprintf("original-%d", i)
+		notRegisteredKeys = append(notRegisteredKeys, original)
+	}
+
+	resp, err := http.Get(server.URL)
+	if err != nil {
+		log.Println(resp)
+		t.Fatalf("%v", err)
+	}
+
+	contents, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		t.Fatalf("Error reading body: %v", err)
+	}
+
+	var items struct {
+		Keys []string `json:'tokens'`
+	}
+
+	err = json.Unmarshal(contents, &items)
+	if err != nil {
+		t.Fatalf("Trouble unmarshaling JSON: %v", err)
+	}
+
+	for index, val := range items.Keys {
+		fatal := false
+		if val != fmt.Sprintf("original-%d", index) {
+			fatal = true
+			log.Printf(
+				"Original value at index %d is not original-%d: %s",
+				index,
+				index,
+				val,
+			)
+		}
+
+		if fatal {
+			t.Fatal(items)
+		}
+	}
+}

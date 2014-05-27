@@ -36,8 +36,11 @@ func getReport(w http.ResponseWriter, r *http.Request) {
 
 // Return all currently collected canonical reports from GCM
 func getCanonicalReport(w http.ResponseWriter, r *http.Request) {
+	canonicalReplacementsMutex.Lock()
 	ids := map[string][]canonicalReplacement{"canonical_replacements": canonicalReplacements}
 	a, _ := json.Marshal(ids)
+	canonicalReplacementsMutex.Unlock()
+
 	b := string(a)
 	io.WriteString(w, b)
 
@@ -46,5 +49,23 @@ func getCanonicalReport(w http.ResponseWriter, r *http.Request) {
 		canonicalReplacementsMutex.Lock()
 		defer canonicalReplacementsMutex.Unlock()
 		canonicalReplacements = nil
+	}()
+}
+
+// Return all tokens that need to be unregistered
+func getNotRegisteredReport(w http.ResponseWriter, r *http.Request) {
+	notRegisteredMutex.Lock()
+	ids := map[string][]string{"tokens": notRegisteredKeys}
+	a, _ := json.Marshal(ids)
+	notRegisteredMutex.Unlock()
+
+	b := string(a)
+	io.WriteString(w, b)
+
+	// Clear ids
+	go func() {
+		notRegisteredMutex.Lock()
+		defer notRegisteredMutex.Unlock()
+		notRegisteredKeys = nil
 	}()
 }

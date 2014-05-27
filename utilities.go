@@ -61,6 +61,10 @@ func sendMessageToGCM(tokens []string, payloadAsString string) (bool, error) {
 			if result.Error != "" {
 				numErr++
 				log.Printf("Error sending: %s", result.Error)
+
+				if result.Error == "NotRegistered" {
+					handleNotRegisteredError(tokens[i])
+				}
 			}
 		}
 
@@ -77,6 +81,12 @@ func handleCanonicalsInResult(original string, results []gcm.Result) {
 	for _, r := range results {
 		canonicalReplacements = append(canonicalReplacements, canonicalReplacement{original, r.RegistrationID})
 	}
+}
+
+func handleNotRegisteredError(original string) {
+	notRegisteredMutex.Lock()
+	notRegisteredKeys = append(notRegisteredKeys, original)
+	notRegisteredMutex.Unlock()
 }
 
 func appendAttempts(numToAppend int) {
