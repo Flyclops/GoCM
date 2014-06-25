@@ -1,0 +1,10 @@
+{
+	"ImportPath": "GoCM",
+	"GoVersion": "go1.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/alexjlockwood/gcm",
+			"Rev": "3cef374f3d8e0b92ed8815541baeaf1b97302f23"
+		}
+	]
+}
