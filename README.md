@@ -64,7 +64,7 @@ message = {
     'datestamp': '2014-03-07T18:01:04.702100'
 }
 data = {
-    'token': [token],
+    'tokens': [token],
     'payload': json.dumps(message)
 }
 
@@ -73,7 +73,7 @@ response = requests.post(GCM_SEND_ENDPOINT, data=data)
 
 Get back a run report of attempts, failures, and required changes:
 ```bash
-curl localhost:5601/gcm/report/
+curl localhost:5601/gcm/report
 ```
 Result like: ```{"attempts":0,"failures":0,"pending":0,"canonicals":0,"notregistered":0}```
 ("attempts," "failures," "notregistered", and "canonicals" is a running total for the running process, while "pending" is the number of messages waiting to finish transmitting successfully. Great for watching via Graphite graphs or the like.)
