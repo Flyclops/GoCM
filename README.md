@@ -84,7 +84,7 @@ curl localhost:5601/gcm/report/canonical
 ```
 Results like: ```{"canonical_replacements":null}```
 
-Or: ```{"canonical_replacements": [{"original": "<token>", "canonical": "<new_token>"]}```
+Or: ```{"canonical_replacements": [{"original": "<token>", "canonical": "<new_token>"}]```
 
 _Read more on Canonical IDs in GCM via the [offical documentation](http://developer.android.com/google/gcm/adv.html#canonical)_
 
